@@ -189,6 +189,7 @@ const UnApprovedCustomer = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+      {key: "unverfied_customer_code", header: "Unverfied Customer Code"},
     { key: "name", header: "Full Name" },
     { key: "phone_number", header: "Phone Number" },
     { key: "customer_id", header: "Customer ID" },
@@ -241,6 +242,7 @@ const UnApprovedCustomer = () => {
         const formattedData = response.data.map((user) => ({
           ...user,
           id: user._id,
+          unverfied_customer_code: group?.unverfied_customer_code,
           name: user.full_name,
           phone_number: user.phone_number,
           createdAt: user.createdAt?.split("T")[0],

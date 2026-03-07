@@ -15,6 +15,7 @@ import { fieldSize } from "../data/fieldSize";
 import CircularLoader from "../components/loaders/CircularLoader";
 import { FaWhatsappSquare } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+
 const Lead = () => {
   const [groups, setGroups] = useState([]);
   const [TableGroups, setTableGroups] = useState([]);
@@ -36,6 +37,7 @@ const Lead = () => {
   const whatsappEnable = true;
   const [leadShowModal, setLeadShowModal] = useState(false);
   const [selectedLeadData, setSelectedLeadData] = useState(null);
+
   const onGlobalSearchChangeHandler = (e) => {
     const { value } = e.target;
     setSearchText(value);
@@ -46,6 +48,7 @@ const Lead = () => {
     message: "Something went wrong!",
     type: "info",
   });
+
   const handleGroupChange = async (event) => {
     const groupId = event.target.value;
     setSelectedGroup(groupId);
@@ -62,11 +65,6 @@ const Lead = () => {
     note: "",
   });
 
-  const GlobalSearchChangeHandler = (e) => {
-    const { value } = e.target;
-    setSearchText(value);
-  };
-  
   const [updateFormData, setUpdateFormData] = useState({
     lead_name: "",
     lead_phone: "",
@@ -78,11 +76,11 @@ const Lead = () => {
     lead_needs: "",
     note: "",
   });
+
   useEffect(() => {
     const fetchGroups = async () => {
       try {
         const response = await api.get("/group/get-group-admin");
-
         setGroups(response.data);
       } catch (error) {
         console.error("Error fetching group data:", error);
@@ -91,9 +89,9 @@ const Lead = () => {
     fetchGroups();
   }, [reloadTrigger]);
 
-    const handleAssignTask = (leadId, leadTypeName) => {
-  navigate("/task", { state: { leadId , leadTypeName } }); //  pass leadId
-}
+  const handleAssignTask = (leadId, leadTypeName) => {
+    navigate("/task", { state: { leadId, leadTypeName } }); //  pass leadId
+  };
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -104,6 +102,7 @@ const Lead = () => {
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
           id: index + 1,
+          lead_code: group?.lead_code, // <--- ADDED LEAD_ID
           name: group?.lead_name,
           phone: group?.lead_phone,
           profession: group?.lead_profession,
@@ -113,15 +112,15 @@ const Lead = () => {
           lead_type: group.lead_type,
           note: group?.note,
           lead_type_name:
-  group.lead_type === "customer"
-    ? group?.lead_customer?.full_name
-    : group.lead_type === "agent" || group.lead_type === "employee"
-      ? group?.lead_agent?.name
-      : "",
+            group.lead_type === "customer"
+              ? group?.lead_customer?.full_name
+              : group.lead_type === "agent" || group.lead_type === "employee"
+              ? group?.lead_agent?.name
+              : "",
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
-                trigger={['click']}
+                trigger={["click"]}
                 menu={{
                   items: [
                     {
@@ -138,7 +137,6 @@ const Lead = () => {
                     {
                       key: "2",
                       label: (
-                       
                         <Tooltip title="Lead to Customer">
                           <div
                             className="text-purple-900 cursor-pointer font-bold"
@@ -151,11 +149,11 @@ const Lead = () => {
                         </Tooltip>
                       ),
                     },
-                     {
+                    {
                       key: "3",
                       label: (
                         <div
-                          className="text-violet-600"
+                          className="text-blue-600"
                           onClick={() => handleAssignTask(group._id, group.lead_type_name)}
                         >
                           Assign Task
@@ -215,7 +213,7 @@ const Lead = () => {
   //   };
   //   fetchAgents();
   // }, [reloadTrigger]);
-   useEffect(() => {
+  useEffect(() => {
     const fetchAgent = async () => {
       try {
         const response = await api.get("/agent/get");
@@ -226,6 +224,7 @@ const Lead = () => {
     };
     fetchAgent();
   }, [reloadTrigger]);
+
   useEffect(() => {
     const fetchEmployee = async () => {
       try {
@@ -250,7 +249,7 @@ const Lead = () => {
     }));
   };
 
-   const handleSoftRemove = async (leadId) => {
+  const handleSoftRemove = async (leadId) => {
     try {
       await api.put(`/lead/soft-delete-lead/${leadId}`);
       setReloadTrigger((prev) => prev + 1);
@@ -277,6 +276,7 @@ const Lead = () => {
 
     setErrors((prevErrors) => ({ ...prevErrors, [field]: "" }));
   };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -285,6 +285,7 @@ const Lead = () => {
     }));
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
   };
+
   const validateForm = (type) => {
     const newErrors = {};
     const data = type === "addLead" ? formData : updateFormData;
@@ -313,7 +314,7 @@ const Lead = () => {
     if (data.lead_type === "agent" && !data.lead_agent) {
       newErrors.lead_agent = "Agent selection is required";
     }
-     if (data.lead_type === "employee" && !data.lead_agent) {
+    if (data.lead_type === "employee" && !data.lead_agent) {
       newErrors.lead_agent = "Agent selection is required";
     }
     if (!data.lead_needs.toString()) {
@@ -328,47 +329,50 @@ const Lead = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const isValid = validateForm("addLead");
+  const isValid = validateForm("addLead");
+  if (!isValid) return;
 
-    try {
-      if (isValid) {
-        setShowModal(false);
-        const response = await api.post("/lead/add-lead", formData, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        setReloadTrigger((prev) => prev + 1);
-        setAlertConfig({
-          visibility: true,
-          message: "Lead added successfully",
-          type: "success",
-        });
+  try {
+    const response = await api.post("/lead/add-lead", formData);
 
-        setFormData({
-          lead_name: "",
-          lead_phone: "",
-          lead_profession: "",
-          group_id: "",
-          lead_type: "",
-          lead_customer: "",
-          lead_agent: "",
-          lead_needs: "",
-          note: "",
-        });
-      }
-    } catch (error) {
-      setShowModal(false);
-      setAlertConfig({
-        visibility: true,
-        message: "Lead added successfully",
-        type: "error",
-      });
-    }
-  };
+    console.log("response", response);
+
+    // ✅ Close modal ONLY after success
+    setShowModal(false);
+
+    setReloadTrigger((prev) => prev + 1);
+
+    setAlertConfig({
+      visibility: true,
+      message: "Lead added successfully",
+      type: "success",
+    });
+
+    setFormData({
+      lead_name: "",
+      lead_phone: "",
+      lead_profession: "",
+      group_id: "",
+      lead_type: "",
+      lead_customer: "",
+      lead_agent: "",
+      lead_needs: "",
+      note: "",
+    });
+
+  } catch (error) {
+    console.log("Error:", error.response?.data);
+
+    setAlertConfig({
+      visibility: true,
+      message: error.response?.data?.message || "Something went wrong",
+      type: "error",
+    });
+  }
+};
 
   const filteredGroups = groups.filter((group) =>
     group.group_name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -436,10 +440,10 @@ const Lead = () => {
   };
 
   const regex = {
-  email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,      // Validates email format
-  pincode: /^\d{6}$/,                       // Validates 6 digits for pincode
-  adhaar: /^\d{12}$/                        // Validates 12 digits for Aadhar number
-};
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, // Validates email format
+    pincode: /^\d{6}$/, // Validates 6 digits for pincode
+    adhaar: /^\d{12}$/, // Validates 12 digits for Aadhar number
+  };
 
   const validateConvertToCustomer = (data) => {
     const newErrors = {};
@@ -451,8 +455,6 @@ const Lead = () => {
     if (!data.phone_number || !/^[6-9]\d{9}$/.test(data.phone_number)) {
       newErrors.phone_number = "Valid phone number is required";
     }
-
-
 
     if (!data.password) {
       newErrors.password = "Password is required";
@@ -466,9 +468,9 @@ const Lead = () => {
       newErrors.adhaar_no = "Invalid Aadhar number (12 digits required)";
     }
 
-   if (data.pan_no && data.pan_no.trim().length !== 10) {
-  newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
-}
+    if (data.pan_no && data.pan_no.trim().length !== 10) {
+      newErrors.pan_no = "Invalid PAN format (e.g., ABCDE1234F)";
+    }
 
     if (!data.address || data.address.trim().length < 3) {
       newErrors.address = "Address should be at least 3 characters";
@@ -511,6 +513,7 @@ const Lead = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+    { key: "lead_code", header: "Lead ID" }, // <--- ADDED LEAD_ID COLUMN
     { key: "name", header: "Lead Name" },
     { key: "phone", header: "Lead Phone Number" },
     { key: "profession", header: "Lead Profession" },
@@ -523,7 +526,7 @@ const Lead = () => {
     { key: "action", header: "Action" },
   ];
 
-   const handleConvertCustomerSubmit = async (e) => {
+  const handleConvertCustomerSubmit = async (e) => {
     e.preventDefault();
 
     const valid = validateConvertToCustomer(formData);
@@ -610,9 +613,8 @@ const Lead = () => {
     <>
       <div>
         <div className="flex mt-20">
-           <Sidebar />
           <Navbar
-            onGlobalSearchChangeHandler={GlobalSearchChangeHandler}
+            onGlobalSearchChangeHandler={onGlobalSearchChangeHandler}
             visibility={true}
           />
           <CustomAlertDialog
@@ -623,6 +625,7 @@ const Lead = () => {
               setAlertConfig((prev) => ({ ...prev, visibility: false }))
             }
           />
+          <Sidebar />
 
           <div className="flex-grow p-7">
             <div className="mt-6 mb-8 ">
@@ -633,7 +636,7 @@ const Lead = () => {
                     setShowModal(true);
                     setErrors({});
                   }}
-                  className="ml-4 bg-violet-950 text-white px-4 py-2 rounded shadow-md hover:bg-violet-800 transition duration-200"
+                  className="ml-4 bg-blue-950 text-white px-4 py-2 rounded shadow-md hover:bg-blue-800 transition duration-200"
                 >
                   + Add Lead
                 </button>
@@ -736,7 +739,7 @@ const Lead = () => {
                   id="name"
                   placeholder="Enter the Lead Name"
                   required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.lead_name && (
                   <p className="mt-1 text-sm text-red-500">
@@ -760,7 +763,7 @@ const Lead = () => {
                     id="text"
                     placeholder="Enter Phone Number"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.lead_phone && (
                     <p className="mt-1 text-sm text-red-500">
@@ -776,7 +779,7 @@ const Lead = () => {
                     Lead Work/Profession{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                 
+
                   <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Lead Work/Profession "
@@ -819,7 +822,7 @@ const Lead = () => {
                   value={formData.group_id}
                   onChange={handleChange}
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Group</option>
                   {groups.map((group) => (
@@ -854,7 +857,7 @@ const Lead = () => {
                 >
                   Lead Source Type <span className="text-red-500 ">*</span>
                 </label>
-           
+
                 <Select
                   className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                   placeholder="Select Lead Source Type "
@@ -894,9 +897,9 @@ const Lead = () => {
                     >
                       Customers
                     </label>
-                  
+
                     <Select
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Customer"
                       popupMatchSelectWidth={false}
                       showSearch
@@ -936,9 +939,9 @@ const Lead = () => {
                     >
                       Agent
                     </label>
-                  
+
                     <Select
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Agent"
                       popupMatchSelectWidth={false}
                       showSearch
@@ -977,9 +980,9 @@ const Lead = () => {
                     >
                       Employee
                     </label>
-                   
+
                     <Select
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Employee"
                       popupMatchSelectWidth={false}
                       showSearch
@@ -1009,24 +1012,7 @@ const Lead = () => {
                   </div>
                 </>
               )}
-              <div className="w-full">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                  htmlFor="date"
-                >
-                  Note
-                </label>
-                <input
-                  type="text"
-                  name="note"
-                  value={formData.note}
-                  onChange={handleChange}
-                  id="text"
-                  placeholder="Specify note if any!"
-                  required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
-                />
-              </div>
+           
 
               <div className="w-full">
                 <label
@@ -1041,7 +1027,7 @@ const Lead = () => {
                   value={formData.lead_needs}
                   onChange={handleChange}
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Lead Needs and Goals</option>
                   <option value="savings">Savings</option>
@@ -1071,6 +1057,25 @@ const Lead = () => {
                   </p>
                 )}
               </div>
+                 <div className="w-full">
+                <label
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                  htmlFor="date"
+                >
+                  Note
+                </label>
+                <textarea
+                  // type="text"
+                    rows={2} // adjust height
+                  name="note"
+                  value={formData.note}
+                  onChange={handleChange}
+                  id="text"
+                  placeholder="Specify note if any!"
+                  required
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
+                />
+              </div>
               <div className="flex flex-col items-center p-4 max-w-full bg-white rounded-lg shadow-sm space-y-4">
                 <div className="flex items-center space-x-3">
                   <FaWhatsappSquare color="green" className="w-10 h-10" />
@@ -1092,8 +1097,8 @@ const Lead = () => {
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
-                  className="w-1/4 text-white bg-violet-700 hover:bg-violet-800 border-2 border-black
-                                focus:ring-4 focus:outline-none focus:ring-violet-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+                                focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
                   Save Lead
                 </button>
@@ -1129,7 +1134,7 @@ const Lead = () => {
                   id="name"
                   placeholder="Enter the Group Name"
                   required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
                 {errors.lead_name && (
                   <p className="mt-1 text-sm text-red-500">
@@ -1153,7 +1158,7 @@ const Lead = () => {
                     id="text"
                     placeholder="Enter Lead Phone Number"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.lead_phone && (
                     <p className="mt-1 text-sm text-red-500">
@@ -1169,7 +1174,7 @@ const Lead = () => {
                     Lead Work/Profession{" "}
                     <span className="text-red-500 ">*</span>
                   </label>
-                 
+
                   <Select
                     className="bg-gray-50 border h-14 border-gray-300 text-gray-900 text-sm rounded-lg w-full"
                     placeholder="Select Lead Work/Profession "
@@ -1212,7 +1217,7 @@ const Lead = () => {
                   value={updateFormData.group_id}
                   onChange={handleInputChange}
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Group</option>
                   {groups.map((group) => (
@@ -1253,7 +1258,7 @@ const Lead = () => {
                   value={updateFormData.lead_type}
                   onChange={handleInputChange}
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Lead Source Type</option>
                   <option value="social">Social Media</option>
@@ -1308,7 +1313,7 @@ const Lead = () => {
                       value={updateFormData.lead_customer}
                       onChange={handleInputChange}
                       required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     >
                       <option value="">Select Customer</option>
                       {users.map((user) => (
@@ -1318,7 +1323,7 @@ const Lead = () => {
                       ))}
                     </select> */}
                     <Select
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Customers"
                       popupMatchSelectWidth={false}
                       showSearch
@@ -1363,7 +1368,7 @@ const Lead = () => {
                       value={updateFormData.lead_agent}
                       onChange={handleInputChange}
                       required
-                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                     >
                       <option value="">Select Agent</option>
                       {agents.map((agent) => (
@@ -1411,9 +1416,9 @@ const Lead = () => {
                     >
                       Employee
                     </label>
-                  
+
                     <Select
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Employee"
                       popupMatchSelectWidth={false}
                       showSearch
@@ -1457,7 +1462,7 @@ const Lead = () => {
                 id="text"
                 placeholder="Specify note if any!"
                 required
-                className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
               />
               <div className="w-full">
                 <label
@@ -1472,7 +1477,7 @@ const Lead = () => {
                   value={updateFormData.lead_needs}
                   onChange={handleInputChange}
                   required
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5"
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5"
                 >
                   <option value="">Select Lead Needs and Goals</option>
                   <option value="savings">Savings</option>
@@ -1510,8 +1515,8 @@ const Lead = () => {
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
-                  className="w-1/4 text-white bg-violet-700 hover:bg-violet-800 border-2 border-black
-              focus:ring-4 focus:outline-none focus:ring-violet-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
                   Update
                 </button>
@@ -1551,7 +1556,7 @@ const Lead = () => {
                     placeholder="Enter the Group Name"
                     readOnly
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.full_name && (
                     <p className="mt-1 text-sm text-red-500">
@@ -1574,9 +1579,9 @@ const Lead = () => {
                     id="text"
                     placeholder="Enter Email"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
-               
+
                 </div>
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1596,7 +1601,7 @@ const Lead = () => {
                     placeholder="Enter Lead Phone Number"
                     readOnly
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.phone_number && (
                     <p className="mt-1 text-sm text-red-500">
@@ -1721,7 +1726,7 @@ const Lead = () => {
                     </label>
 
                     <Select
-                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                      className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                       placeholder="Select Or Search Customers"
                       popupMatchSelectWidth={false}
                       showSearch
@@ -1807,7 +1812,7 @@ const Lead = () => {
                     id="text"
                     placeholder="Enter Password"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.password && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1830,7 +1835,7 @@ const Lead = () => {
                     id="text"
                     placeholder="Enter Pincode"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pincode && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1868,7 +1873,7 @@ const Lead = () => {
                   Select Payment Type <span className="text-red-500 ">*</span>
                 </label>
                 <Select
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   placeholder="Select Payment Type"
                   popupMatchSelectWidth={false}
                   showSearch
@@ -1907,7 +1912,7 @@ const Lead = () => {
                     id="text"
                     placeholder="Enter Adhaar Number"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.adhaar_no && (
                     <p className="mt-2 text-sm text-red-600">
@@ -1931,7 +1936,7 @@ const Lead = () => {
                     id="text"
                     placeholder="Enter Pan Number"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.pan_no && (
                     <p className="mt-2 text-sm text-red-600">{errors.pan_no}</p>
@@ -1953,7 +1958,7 @@ const Lead = () => {
                   id="text"
                   placeholder="Specify note if any!"
                   required
-                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                  className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                 />
               </div>
               <div className="flex flex-row justify-between space-x-4">
@@ -1972,7 +1977,7 @@ const Lead = () => {
                     id="text"
                     placeholder="Enter Number of Tickets"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                   {errors.no_of_tickets && (
                     <p className="mt-1 text-sm text-red-500">
@@ -2019,8 +2024,8 @@ const Lead = () => {
               <div className="w-full flex justify-end">
                 <button
                   type="submit"
-                  className="w-1/4 text-white bg-violet-700 hover:bg-violet-800 border-2 border-black
-              focus:ring-4 focus:outline-none focus:ring-violet-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  className="w-1/4 text-white bg-blue-700 hover:bg-blue-800 border-2 border-black
+              focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
                   Convert To Customer
                 </button>
@@ -2064,13 +2069,13 @@ const Lead = () => {
                     id="groupName"
                     placeholder="Enter the Lead Name"
                     required
-                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-violet-500 focus:border-violet-500 w-full p-2.5`}
+                    className={`bg-gray-50 border border-gray-300 ${fieldSize.height} text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5`}
                   />
                 </div>
                 <button
                   type="submit"
                   className="w-full text-white bg-red-700 hover:bg-red-800
-          focus:ring-4 focus:outline-none focus:ring-violet-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+          focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                 >
                   Delete
                 </button>

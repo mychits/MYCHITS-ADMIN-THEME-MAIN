@@ -7,7 +7,12 @@ import { IoMdMore } from "react-icons/io";
 import CircularLoader from "../components/loaders/CircularLoader";
 import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
-import { Dropdown, Select } from "antd";
+import { Dropdown, Select, Row, Col, Card } from "antd";
+import {
+  UserOutlined,
+  TeamOutlined,
+  AppstoreOutlined,
+} from "@ant-design/icons";
 
 const EnrollmentReport = () => {
   const [groups, setGroups] = useState([]);
@@ -42,6 +47,11 @@ const EnrollmentReport = () => {
   const [selectedLeadSourceName, setSelectedLeadSourceName] = useState("");
   const [selectedPaymentType, setSelectedPaymentType] = useState("");
   const [selectedNote, setSelectedNote] = useState("");
+  const [overview, setOverview] = useState({
+  totalCustomers: 0,
+  totalEnrollments: 0,
+  totalGroups: 0,
+});
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -88,6 +98,39 @@ const EnrollmentReport = () => {
         );
         if (response.data) {
           setLeads(response.data);
+           if (response.data) {
+  const enrollments = response.data;
+
+
+  const uniqueCustomers = new Set(
+    enrollments
+      .filter(e => e?.user_id?._id)
+      .map(e => e.user_id._id.toString())
+  );
+
+ 
+  const uniqueEnrollments = new Set(
+    enrollments
+      .filter(e => e?.user_id?._id && e?.group_id?._id)
+      .map(
+        e =>
+          `${e.user_id._id}_${e.group_id._id}_${e.tickets}`
+      )
+  );
+
+ 
+  const uniqueGroups = new Set(
+    enrollments
+      .filter(e => e?.group_id?._id)
+      .map(e => e.group_id._id.toString())
+  );
+
+  setOverview({
+    totalCustomers: uniqueCustomers.size,
+    totalEnrollments: uniqueEnrollments.size,
+    totalGroups: uniqueGroups.size,
+  });
+}
           const formattedData = response.data.map((group, index) => {
             if(!group.group_id || !group.user_id) return {};
             return ({
@@ -401,6 +444,79 @@ const EnrollmentReport = () => {
                 </div>
               </div>
             </div>
+                        <Row gutter={[20, 20]} className="mb-6">
+  {/* TOTAL CUSTOMERS */}
+  <Col xs={24} md={8}>
+    <Card
+      bordered={false}
+      className="rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+      bodyStyle={{ padding: 20 }}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-gray-500 text-sm font-medium">
+            Total Customers
+          </p>
+          <h2 className="text-3xl font-bold text-blue-600 mt-1">
+            {overview.totalCustomers}
+          </h2>
+        </div>
+
+        <div className="bg-blue-100 text-blue-600 p-4 rounded-xl text-2xl">
+          <UserOutlined />
+        </div>
+      </div>
+    </Card>
+  </Col>
+
+  {/* TOTAL ENROLLMENTS */}
+  <Col xs={24} md={8}>
+    <Card
+      bordered={false}
+      className="rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+      bodyStyle={{ padding: 20 }}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-gray-500 text-sm font-medium">
+            Total Enrollments
+          </p>
+          <h2 className="text-3xl font-bold text-green-600 mt-1">
+            {overview.totalEnrollments}
+          </h2>
+        </div>
+
+        <div className="bg-green-100 text-green-600 p-4 rounded-xl text-2xl">
+          <TeamOutlined />
+        </div>
+      </div>
+    </Card>
+  </Col>
+
+  {/* TOTAL GROUPS */}
+  <Col xs={24} md={8}>
+    <Card
+      bordered={false}
+      className="rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+      bodyStyle={{ padding: 20 }}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-gray-500 text-sm font-medium">
+            Total Groups
+          </p>
+          <h2 className="text-3xl font-bold text-purple-600 mt-1">
+            {overview.totalGroups}
+          </h2>
+        </div>
+
+        <div className="bg-purple-100 text-purple-600 p-4 rounded-xl text-2xl">
+          <AppstoreOutlined />
+        </div>
+      </div>
+    </Card>
+  </Col>
+</Row>
             {TableGroups && TableGroups.length > 0 && !isLoading ? (
               <DataTable
                 data={filterOption(TableGroups, searchText)}

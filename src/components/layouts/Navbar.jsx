@@ -277,6 +277,7 @@ const Navbar = ({
       icon: <GiReceiveMoney className="text-lg" />,
     },
   ];
+  
 
   /* ================================
      UI

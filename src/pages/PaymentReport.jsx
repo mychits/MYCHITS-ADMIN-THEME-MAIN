@@ -21,6 +21,7 @@ import {
   Empty,
   Typography,
   Divider,
+   Spin,
 } from "antd";
 const { Text, Title } = Typography;
 
@@ -91,6 +92,9 @@ const PaymentReport = () => {
     online: 0,
     link: 0,
   });
+  const [overviewLoading, setOverviewLoading] = useState(true);
+  const [categoryLoading, setCategoryLoading] = useState(true);
+  const [modeLoading, setModeLoading] = useState(true);
 
   const [showAllPaymentModes, setShowAllPaymentModes] = useState(false);
   const [formData, setFormData] = useState({
@@ -325,6 +329,9 @@ const PaymentReport = () => {
     const fetchPayments = async () => {
       try {
         setIsLoading(true);
+        setOverviewLoading(true);
+        setCategoryLoading(true);
+        setModeLoading(true);
         const response = await api.get(`/payment/paydate-report`, {
           params: {
             from_date: selectedFromDate,
@@ -462,6 +469,9 @@ const PaymentReport = () => {
         setPayments(0);
       } finally {
         setIsLoading(false);
+        setOverviewLoading(false);
+        setCategoryLoading(false);
+        setModeLoading(false);
       }
     };
 
@@ -638,6 +648,7 @@ const PaymentReport = () => {
                 <Title level={4} className="!mb-4 text-gray-700">
                   Financial Overview
                 </Title>
+                 <Spin spinning={overviewLoading} size="large">
                 <Row gutter={[20, 20]}>
                   <Col xs={24} md={12}>
                     <Card className="shadow-md hover:shadow-lg transition-all duration-300 border-none rounded-xl bg-gradient-to-br from-white to-green-50/30 overflow-hidden relative">
@@ -664,7 +675,7 @@ const PaymentReport = () => {
                         valueStyle={{
                           color: "#065f46",
                           fontWeight: "700",
-                          fontSize: "1.8rem",
+                          fontSize: "2.0rem",
                         }}
                       />
                       <div className="mt-2 py-1 px-2 bg-emerald-100/50 rounded inline-block">
@@ -703,6 +714,7 @@ const PaymentReport = () => {
                     </Card>
                   </Col>
                 </Row>
+                </Spin>
               </div>
 
               <Divider />
@@ -712,6 +724,7 @@ const PaymentReport = () => {
                 <Title level={4} className="!mb-4 text-gray-700">
                   Category Breakdown
                 </Title>
+                    <Spin spinning={categoryLoading} size="large">
                 <Row gutter={[16, 16]}>
                   {[
                     {
@@ -779,6 +792,7 @@ const PaymentReport = () => {
                     </Col>
                   ))}
                 </Row>
+                </Spin>
               </div>
 
               {/* SECTION: Payment Modes */}
@@ -786,6 +800,7 @@ const PaymentReport = () => {
                 <Title level={4} className="!mb-4 text-gray-700">
                   Payment Modes
                 </Title>
+                 <Spin spinning={modeLoading} size="large">
                 <Row gutter={[16, 16]}>
                   {[
                     {
@@ -831,6 +846,7 @@ const PaymentReport = () => {
                     </Col>
                   ))}
                 </Row>
+                </Spin>
               </div>
             </div>
 

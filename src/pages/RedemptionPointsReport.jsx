@@ -651,6 +651,8 @@ const RedemptionPointsReport = () => {
             columns={
               reportType === "EMPLOYEE" ? employeeColumns : customerColumns
             }
+            exportedFileName="Redemption Points Report.csv"
+            exportedPdfName="Redemption Points Report"
           />
         </div>
       </div>

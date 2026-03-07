@@ -1464,7 +1464,7 @@ const InActiveUserReport = () => {
                                       searchText
                                     )}
                                     columns={Auctioncolumns}
-                                    exportedPdfName={`Customer Report`}
+                                    exportedPdfName={`InActive Customer Details Report`}
                                     printHeaderKeys={[
                                       "Customer Name",
                                       "Phone Number",
@@ -1483,7 +1483,7 @@ const InActiveUserReport = () => {
                                         ? NetTotalprofit - Totalpaid
                                         : "",
                                     ]}
-                                    exportedFileName={`CustomerReport-${TableAuctions.length > 0
+                                   exportedFileName={`InActive Customer Details Report-${TableAuctions.length > 0
                                       ? TableAuctions[0].date +
                                       " to " +
                                       TableAuctions[
@@ -1501,7 +1501,8 @@ const InActiveUserReport = () => {
                                       <DataTable
                                         data={filteredBorrowerData}
                                         columns={loanColumns}
-                                        exportedFileName={`CustomerReport.csv`}
+                                        exportedFileName={`Customer Loan Report.csv`}
+                                        exportedPdfName="Customer Loan Report"
                                       />
                                     </div>
                                   )}
@@ -1514,7 +1515,8 @@ const InActiveUserReport = () => {
                                       <DataTable
                                         data={filteredPigmeData}
                                         columns={pigmeColumns}
-                                        exportedFileName={`PigmeCustomerReport.csv`}
+                                          exportedFileName={`Customer Pigme Details.csv`}
+                                        exportedPdfName="Customer Pigme Details"
                                       />
                                     </div>
                                   )}
@@ -1937,6 +1939,7 @@ const InActiveUserReport = () => {
                             <div className="mt-10">
                               <DataTable
                                 exportedPdfName="Customer Ledger Report"
+                                exportedFileName="Customer Ledger Report.csv"
                                 printHeaderKeys={[
                                   "Customer Name",
                                   "Customer Id",

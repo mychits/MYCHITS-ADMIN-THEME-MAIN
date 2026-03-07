@@ -2939,9 +2939,9 @@ const EmployeeAttendanceReport = () => {
     );
   };
 
-  const handleNoteChange = (id, value) => {
+const handleNoteChange = (id, value) => {
     setTableAttendanceData((prev) =>
-      prev.map((item) => (item._id === id ? { ...item, Note: value } : item))
+      prev.map((item) => (item._id === id ? { ...item, Note: value,  NoteRaw: value, } : item))
     );
   };
 
@@ -3025,11 +3025,13 @@ if (loginTime && logoutTime) {
             // Default to Absent if no explicit status found (mirrors earlier behavior if desired)
             Status: normalizedStatus === "-" ? "Absent" : normalizedStatus,
             ApprovalStatus: details?.approval_status || "Pending",
+            ApprovalStatusRaw: details?.approval_status || "Pending",
             Date: details?.date ? formatDateForDisplay(details.date) : "-",
             Time: details?.time || "-",
             OutTime: details?.logout_time || "-",
             WorkingHours: workingHours,
             Note: details?.note || "",
+            NoteRaw: details?.note || "",
             attendanceId: details?._id,
             Approved: isApproved,
             InitialApproved: isApproved,
@@ -3123,6 +3125,7 @@ if (loginTime && logoutTime) {
               ...item,
               Approved: checked,
               ApprovalStatus: checked ? "Approved" : "Pending",
+              ApprovalStatusRaw: checked ? "Approved" : "Pending",
             }
           : item
       )
@@ -3327,6 +3330,19 @@ if (loginTime && logoutTime) {
     { key: "Note", header: "Reason" },
     { key: "checkBox", header: "Actions" },
   ];
+      const PDFAttendanceColumns = [
+    { key: "id", header: "Sl No" },
+    { key: "EmployeeId", header: "Employee Id" },
+    { key: "EmployeeName", header: "Employee Name" },
+    { key: "Status", header: "Status" },
+    { key: "ApprovalStatusRaw", header: "Approval Status" },
+    { key: "Date", header: "Date" },
+    { key: "Time", header: "Time" },
+    { key: "OutTime", header: "Out-Time" },
+    {key: "WorkingHours", header:"Working Hours"},
+    { key: "NoteRaw", header: "Reason" },
+  
+  ];
 
   return (
      <div className="w-screen h-screen bg-gradient-to-br from-slate-50 to-slate-100 overflow-x-hidden overflow-y-auto">
@@ -3470,9 +3486,26 @@ if (loginTime && logoutTime) {
             {screenLoading ? (
               <CircularLoader color="text-emerald-600" />
             ) : (
-              <DataTable
+             <DataTable
                 columns={AttendanceColumns}
+                exportCols={PDFAttendanceColumns}
                 data={filteredAttendance}
+                printHeaderKeys={ [
+                  "Total Employees",
+                  "Total Present",
+                  "Total Absent",
+                  "Total Half Day",
+                  "Total On Leave",
+                  "Total Approved"]
+                }
+                printHeaderValues={ [
+                  `${summaryStats.total}`,
+                  `${summaryStats.present}`,
+                  `${summaryStats.absent}`,
+                  `${summaryStats.halfday}`,
+                  `${summaryStats.onleave}`,
+                  `${summaryStats.approved}`]
+                }
                 exportedPdfName="Employee Attendence"
                 exportedFileName={`EmployeeAttendence.csv`}
               />

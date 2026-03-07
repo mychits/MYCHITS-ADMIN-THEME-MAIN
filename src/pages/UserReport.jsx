@@ -579,6 +579,8 @@ const UserReport = () => {
             (loan, index) => ({
               sl_no: index + 1,
               loan: loan?.loan_details?.loan?.loan_id,
+              start_date: loan?.loan_details?.loan?.start_date?.split("T")[0],
+              end_date: loan?.loan_details?.loan?.end_date?.split("T")[0],
               loan_amount: loan?.loan_value,
               tenure: loan?.loan_details?.loan?.tenure,
               service_charge: loan?.loan_details?.loan?.service_charges,
@@ -995,7 +997,7 @@ const UserReport = () => {
               <div className="text-right">
                 <div
                   className={`text-sm font-black ${
-                    isNegative ? "text-green-600" : "text-rose-900"
+                    isNegative ? "text-green-900" : "text-rose-600"
                   }`}
                 >
                   ₹{Math.abs(balanceValue).toLocaleString("en-IN")}
@@ -1006,7 +1008,7 @@ const UserReport = () => {
                     isNegative ? "text-emerald-400" : "text-rose-500"
                   }`}
                 >
-                  {isNegative ? "Debit / Outstanding" : "Credit / Settled"}
+                  {isNegative ? "Settled" : "Outstanding"}
                 </div>
               </div>
 
@@ -1054,7 +1056,7 @@ const UserReport = () => {
     } else {
       setShowFilterField(false);
       setTotalTransactons(parseInt(value));
-      setSelectedFromDate(""); // Clear dates so they don't interfere with limit logic
+      setSelectedFromDate(""); 
       setSelectedToDate("");
     }
   };
@@ -1069,6 +1071,8 @@ const UserReport = () => {
   const loanColumns = [
     { key: "sl_no", header: "SL. No" },
     { key: "loan", header: "Loan ID" },
+    {key: "start_date", header: "Start Date"},
+    {key: "end_date", header: "End Date"},
     { key: "loan_amount", header: "Loan Amount" },
     { key: "service_charge", header: "Service Charge" },
     { key: "tenure", header: "Tenure" },
@@ -1148,6 +1152,7 @@ const UserReport = () => {
             chit_asking_month: enrollment.chit_asking_month || "N/A",
             customer_status: enrollment.customer_status,
             removal_reason: enrollment.removal_reason || "N/A",
+            enrollmentDate: enrollment.enrollment_date.split("T")?.[0] || "N/A",
             isPrized: enrollment.isPrized ? "Prized" : "Un Prized",
           };
         })
@@ -1182,14 +1187,15 @@ const UserReport = () => {
     { key: "customer_status", header: "Customer Status" },
     { key: "removal_reason", header: "Removal Reason" },
     { key: "group", header: "Group Name" },
+    {key: "enrollmentDate", header: "Enrollment Date"},
     { key: "ticket", header: "Ticket" },
     { key: "referred_type", header: "Referrer Type" },
     { key: "referrer_name", header: "Referred By" },
     { key: "chit_asking_month", header: "Chit Asking Month" },
     { key: "isPrized", header: "Is Prized" },
-    { key: "totalBePaid", header: "Amount to be Paid" },
+    // { key: "totalBePaid", header: "Amount to be Paid" },
     { key: "profit", header: "Profit" },
-    { key: "toBePaidAmount", header: "Net To be Paid" },
+    { key: "toBePaidAmount", header: "Amount to be Paid" },
     { key: "paidAmount", header: "Amount Paid" },
     { key: "balance", header: "Balance" },
   ];
@@ -1888,7 +1894,8 @@ const UserReport = () => {
                                     <DataTable
                                       data={filteredBorrowerData}
                                       columns={loanColumns}
-                                      exportedFileName="CustomerLoanReport.csv"
+                                      exportedFileName="Loan Details.csv"
+                                      exportedPdfName="Loan Details"
                                     />
                                   </div>
                                 )}
@@ -1903,7 +1910,8 @@ const UserReport = () => {
                                     <DataTable
                                       data={filteredPigmeData}
                                       columns={pigmeColumns}
-                                      exportedFileName="PigmeCustomerReport.csv"
+                                      exportedFileName="Pigmy Details.csv"
+                                      exportedPdfName="Pigmy Details"
                                     />
                                   </div>
                                 )}
@@ -2111,6 +2119,7 @@ const UserReport = () => {
                             <div className="mt-10">
                               <DataTable
                                 exportedPdfName="Customer Ledger Report"
+                                  exportedFileName="Customer Ledger Report.csv"
                                 printHeaderKeys={[
                                   "Customer Name",
                                   "Customer Id",
@@ -2475,4 +2484,3 @@ const UserReport = () => {
 
 export default UserReport;
 
-// Date Range in transaction section is not working properly why

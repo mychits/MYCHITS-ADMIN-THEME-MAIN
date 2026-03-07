@@ -16,6 +16,7 @@ import {
   Empty,
   Typography,
    Divider,
+    Spin,
 } from "antd";
 const { Text, Title } = Typography;
 import Navbar from "../components/layouts/Navbar";
@@ -64,6 +65,10 @@ const Daybook = () => {
     online: 0,
     link: 0,
   });
+
+   const [overviewLoading, setOverviewLoading] = useState(true);
+  const [categoryLoading, setCategoryLoading] = useState(true);
+  const [modeLoading, setModeLoading] = useState(true);
 
   const onGlobalSearchChangeHandler = (e) => setSearchText(e.target.value);
 
@@ -125,6 +130,9 @@ const Daybook = () => {
     const fetchPayments = async () => {
       try {
         setIsLoading(true);
+        setOverviewLoading(true);
+        setCategoryLoading(true);
+        setModeLoading(true);
         const response = await api.get(`/payment/daybook`, {
           params: {
             pay_date: selectedDate,
@@ -257,6 +265,9 @@ const Daybook = () => {
         setTableDaybook([]);
       } finally {
         setIsLoading(false);
+        setOverviewLoading(false);
+        setCategoryLoading(false);
+        setModeLoading(false);
       }
     };
 
@@ -519,6 +530,7 @@ const Daybook = () => {
       {/* SECTION: Overview */}
       <div className="mb-6">
         <Title level={4} className="!mb-4 text-gray-700">Financial Overview</Title>
+        <Spin spinning={overviewLoading} size="large">
         <Row gutter={[20, 20]}>
           <Col xs={24} md={12}>
             <Card className="shadow-md hover:shadow-lg transition-all duration-300 border-none rounded-xl bg-gradient-to-br from-white to-green-50/30 overflow-hidden relative">
@@ -555,6 +567,7 @@ const Daybook = () => {
             </Card>
           </Col>
         </Row>
+        </Spin>
       </div>
 
       <Divider />
@@ -562,6 +575,7 @@ const Daybook = () => {
       {/* SECTION: Categories */}
       <div className="mb-6">
         <Title level={4} className="!mb-4 text-gray-700">Category Breakdown</Title>
+         <Spin spinning={categoryLoading} size="large">
         <Row gutter={[16, 16]}>
           {[
             { title: "Chit Collections", val: categoryTotals.chit, color: "#6366f1", bg: "indigo", icon: <BankOutlined /> },
@@ -587,11 +601,13 @@ const Daybook = () => {
             </Col>
           ))}
         </Row>
+        </Spin>
       </div>
 
       {/* SECTION: Payment Modes */}
       <div className="mb-6">
         <Title level={4} className="!mb-4 text-gray-700">Payment Modes</Title>
+         <Spin spinning={modeLoading} size="large">
         <Row gutter={[16, 16]}>
           {[
             { title: "Cash", val: modeTotals.cash, color: "#16a34a", icon: <WalletOutlined /> },
@@ -614,6 +630,7 @@ const Daybook = () => {
             </Col>
           ))}
         </Row>
+        </Spin>
       </div>
     </div>
 
@@ -830,10 +847,10 @@ const Daybook = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-md border p-4">
+       <div className="bg-white rounded-xl shadow-md border p-4 min-h-[450px]">
           {isLoading ? (
-            <div className="py-20 flex justify-center">
-              <CircularLoader isLoading={true} />
+                <div className="flex items-center justify-center min-h-[350px]">
+              <CircularLoader isLoading />
             </div>
           ) : TableDaybook?.length <= 0 ? (
             <Empty description="Daybook Data is not found" />
@@ -842,7 +859,8 @@ const Daybook = () => {
               data={filterOption(TableDaybook, searchText)}
               columns={columns}
               exportCols={exportCols}
-              exportedPdfName={`Daybook_${selectedDate}`}
+              exportedFileName = {`Daybook_`}
+              exportedPdfName={`Daybook_`}
               printHeaderKeys={[
                 "Total IN",
                 "Total OUT",

@@ -81,6 +81,7 @@ const Designation = () => {
         const formattedData = response.data.map((group, index) => ({
           _id: group._id,
           id: index + 1,
+           designation_code: group?.designation_code,
           title: group.title,
           action: (
             <div className="flex justify-center  gap-2">
@@ -227,6 +228,7 @@ const Designation = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+       {key: "designation_code", header: "Designation Code"},
     { key: "title", header: "Designation Title" },
     { key: "action", header: "Action" },
   ];

@@ -232,6 +232,7 @@ const PrizedCustomerReport = () => {
               columns={columns}
               exportCols={exportColumns}
               exportedPdfName="Prized_Customer_Payout_Report"
+                 exportedFileName="Prized_Customer_Payout_Report.csv"
             />
           )}
         </div>

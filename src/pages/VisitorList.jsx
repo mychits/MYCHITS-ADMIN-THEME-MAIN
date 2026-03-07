@@ -298,6 +298,7 @@ export default function VisitorList() {
     return {
       ...visitor,
       slNo: index + 1,
+        visitor_code: item?.visitor_code,
       visitorId: visitor.visitorId || "N/A",
       visitorType: type.charAt(0).toUpperCase() + type.slice(1),
       agentName: getMeetPersonName(visitor.meetPerson),
@@ -312,6 +313,7 @@ export default function VisitorList() {
 
   const standardColumns = [
     { key: "slNo", header: "Sl.No" },
+       {key: "visitor_code", header: "Visitor Code"},
     { key: "visitorId", header: "Visitor ID" },
     { key: "name", header: "Visitor Name" },
     { key: "visitorType", header: "Type" },
@@ -325,6 +327,7 @@ export default function VisitorList() {
 
   const customerColumns = [
     { key: "slNo", header: "Sl.No" },
+        {key: "visitor_code", header: "Visitor Code"},
     { key: "visitorId", header: "Visitor ID" },
     { key: "name", header: "Visitor Name" },
     { key: "visitorType", header: "Type" },

@@ -8,8 +8,9 @@ import {
   PhoneOutlined, 
   IdcardOutlined,
   CheckCircleOutlined,
-  ClockCircleOutlined
+  ClockCircleOutlined,
 } from "@ant-design/icons";
+import { FiCheckCircle } from "react-icons/fi";
 import Sidebar from "../components/layouts/Sidebar";
 import api from "../instance/TokenInstance";
 import CircularLoader from "../components/loaders/CircularLoader";
@@ -40,6 +41,12 @@ const FILTERS_CONFIG = [
   { id: "3", filterName: "Phone", key: "phone_number" },
   { id: "4", filterName: "Aadhaar", key: "aadhaar_number" },
   { id: "5", filterName: "Pan", key: "pan_number" },
+     {
+      id: "7",
+      filterName: "Status",
+      key: "customer_status",
+      icon: FiCheckCircle,
+    },
 ];
 
 const QuickSearch = () => {
@@ -55,6 +62,10 @@ const QuickSearch = () => {
   const [reloadTrigger, setReloadTrigger] = useState(0);
   const [searchText, setSearchText] = useState(""); // Raw input
   const [activeFilters, setActiveFilters] = useState([]);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 100,
+  });
   
   const [alertConfig, setAlertConfig] = useState({
     visibility: false,
@@ -447,7 +458,25 @@ const QuickSearch = () => {
               Other Results
             </h4>
             <Table
-              pagination={{ pageSize: 5, showSizeChanger: false }}
+              // pagination={{ pageSize: 5, showSizeChanger: false }}
+                 pagination={{
+                  ...pagination,
+                  showSizeChanger: true,
+                  showTotal: (total, range) =>
+                    `${range[0]}-${range[1]} of ${total} items`,
+                  onChange: (page, pageSize) => {
+                    setPagination({
+                      current: page,
+                      pageSize: pageSize || 50, // fallback to 50
+                    });
+                  },
+                  onShowSizeChange: (current, size) => {
+                    setPagination({
+                      current: 1, // reset to first page
+                      pageSize: 50, // force 50 when changed
+                    });
+                  },
+                }}
               scroll={{ x: "max-content" }}
               columns={columns}
               dataSource={tableRecords}

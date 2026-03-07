@@ -442,6 +442,7 @@ const Enroll = () => {
             return {
               _id: group?._id,
               id: index + 1,
+              enroll_code: group?.enroll_code,
               name: group?.user_id?.full_name,
               phone_number: group?.user_id?.phone_number,
               group_name: group?.group_id?.group_name,
@@ -522,6 +523,7 @@ const Enroll = () => {
     columns.push({ key: "group_name", header: "Enrolled Group" });
   }
   columns.push(
+      {key: "enroll_code", header: "Enroll Code"},
     { key: "ticket", header: "Ticket Number" },
     { key: "referred_type", header: "Referred Type" },
     { key: "payment_type", header: "Payment Type" },
@@ -988,6 +990,7 @@ const Enroll = () => {
                 updateHandler={handleUpdateModalOpen}
                 data={filterOption(TableEnrolls, searchText)}
                 columns={columns}
+                exportedPdfName="Enrollments"
                 exportedFileName={`Enrollments-${
                   TableEnrolls.length > 0
                     ? TableEnrolls[0].name +

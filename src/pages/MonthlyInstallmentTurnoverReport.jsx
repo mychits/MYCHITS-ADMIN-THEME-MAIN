@@ -87,6 +87,7 @@ const MonthlyInstallmentTurnoverReport = () => {
             userName: group?.user_id?.full_name,
             ticket: group?.ticket,
             totalPaid: group?.totalPaid,
+            diffrence: (group?.group_id?.monthly_installment)-(group?.monthlyPaid),
             status: group?.status === "true" ? "Paid" : "Not Paid",
           })
         );
@@ -106,7 +107,7 @@ const MonthlyInstallmentTurnoverReport = () => {
     { key: "group", header: "Group Name" },
     { key: "ticket", header: "Ticket" },
     { key: "monthlyInstallment", header: "Monthly Installment Turnover" },
-   
+    {key: "diffrence", header: "Not Paid in Month"},
     { key: "totalPaid", header: "Total Paid" },
     { key: "status", header: "Status" },
   ];
@@ -203,7 +204,7 @@ const MonthlyInstallmentTurnoverReport = () => {
               "Name","Phone Number","Expected Turnover","Total Turnover","Total Customers",
             ]}
             printHeaderValues={[summaryData.agentName,summaryData.phone_number,summaryData.expectedTurnover,summaryData.totalTurnover,summaryData.totalCustomers]}
-            exportedFileName={`Monthly Installment Turnover ${summaryData.agentName}`}
+            exportedFileName={`Monthly Installment Turnover ${summaryData.agentName}.csv`}
             />
           ) : (
             <div className="w-full h-40 flex justify-center items-center text-lg font-semibold">
