@@ -4,7 +4,7 @@ import Sidebar from "../components/layouts/Sidebar";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { IoMdMore } from "react-icons/io";
-import { Input, Select, Dropdown } from "antd";
+import { Input, Select, Dropdown,Modal as madal } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -13,7 +13,8 @@ import Navbar from "../components/layouts/Navbar";
 import filterOption from "../helpers/filterOption";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
-import { fieldSize } from "../data/fieldSize"
+import { fieldSize } from "../data/fieldSize";
+const { confirm } = madal;
 const Agent = () => {
   const [users, setUsers] = useState([]);
   const [TableAgents, setTableAgents] = useState([]);
@@ -52,7 +53,8 @@ const Agent = () => {
     adhaar_no: "",
     designation_id: "",
     pan_no: "",
-    agent_type: "agent"
+    agent_type: "agent",
+    isVerified: "true",
   });
 
   const [updateFormData, setUpdateFormData] = useState({
@@ -65,6 +67,7 @@ const Agent = () => {
     adhaar_no: "",
     designation_id: "",
     pan_no: "",
+     isVerified: "false",
   });
 
 
@@ -82,7 +85,7 @@ const Agent = () => {
           phone_number: group?.phone_number,
           password: group?.password,
           designation: group?.designation_id?.title,
-          action: (
+          action:  (
             <div className="flex justify-center  gap-2">
               {/* <button
                 onClick={() => handleUpdateModalOpen(group._id)}
@@ -105,8 +108,19 @@ const Agent = () => {
                         </div>
                       ),
                     },
+                     {
+                        key: "2",
+                        label: (
+                          <div
+                            className="text-blue-600 cursor-pointer"
+                            onClick={() => handleVerifyAgent(group._id)}
+                          >
+                           Un Verify
+                          </div>
+                        ),
+                      },
                     {
-                      key: "2",
+                      key: "3",
                       label: (
                         <div
                           className="text-red-600"
@@ -358,7 +372,40 @@ const Agent = () => {
     }
   };
 
+const handleVerifyAgent = (userId) => {
 
+  confirm({
+    title: "Are you sure you want to Un-Verify this agent?",
+    content: "This action will mark the agent as Un-Verified.",
+    okText: "Yes, Verify",
+    cancelText: "Cancel",
+
+    async onOk() {
+      try {
+        await api.put(`/agent/update/${userId}`, {
+          isVerified: false,
+        });
+
+        setReloadTrigger((prev) => prev + 1);
+
+        setAlertConfig({
+          visibility: true,
+          message: "Agent Un-Verified Successfully",
+          type: "success",
+        });
+
+      } catch (error) {
+
+        setAlertConfig({
+          visibility: true,
+          message:
+            error?.response?.data?.message || "Failed to verify agent",
+          type: "error",
+        });
+      }
+    },
+  });
+};
 
   const columns = [
     { key: "id", header: "SL. NO" },
