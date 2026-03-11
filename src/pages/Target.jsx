@@ -259,6 +259,7 @@ const Target = () => {
         );
 
         return {
+            target_code: item?.target_code,
           name: item.agent.name,
           phone_number: item.agent.phone,
           actual_business: item?.metrics?.actual_business,
@@ -446,6 +447,7 @@ const Target = () => {
 
   const getColumns = () => {
     return [
+        {key: "target_code", header: "Target Code"},
       { key: "name", header: "Name" },
       { key: "phone_number", header: "Phone Number" },
       { key: "target", header: "Target" },

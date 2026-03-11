@@ -42,8 +42,10 @@ import { TbGraph } from "react-icons/tb";
 
 import { FaGifts } from "react-icons/fa";
 
-
+import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 import { MdAdminPanelSettings } from "react-icons/md";
+import { FiClipboard } from "react-icons/fi";
+import { FaRupeeSign } from "react-icons/fa";
 
 
 
@@ -417,6 +419,12 @@ const sidebarMenu = [
         activeColor: "primary",
       }, // External link
       // { title: "Consolidated", link: "/consolidate" },
+       {
+        id: "#4",
+        title: "Petty CashBook",
+        link: "https://pettycashbook.mychits.online/",
+        newTab: true,
+      },
     ],
   },
   {
@@ -440,6 +448,26 @@ const sidebarMenu = [
         isHeading: true,
         link: "/visitorsection"
       },
+       {
+  id: "$205",
+  title: "Request Management",
+  icon: FiClipboard ,
+  submenu: true,
+  submenuItems: [
+    {
+      id: "$201",
+      title: "Bid Request",
+      icon: LiaFileInvoiceDollarSolid ,
+      link: "/bid-request",
+    },
+    {
+      id: "$205",
+      title: "Loan Request",
+      icon: FaRupeeSign ,
+      link: "/loan-request",
+    },
+  ],
+},
 ];
 
 export default sidebarMenu;

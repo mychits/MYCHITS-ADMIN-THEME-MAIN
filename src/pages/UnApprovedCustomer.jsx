@@ -189,6 +189,7 @@ const UnApprovedCustomer = () => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+      {key: "unverfied_customer_code", header: "Unverfied Customer Code"},
     { key: "name", header: "Full Name" },
     { key: "phone_number", header: "Phone Number" },
     { key: "customer_id", header: "Customer ID" },
@@ -238,17 +239,18 @@ const UnApprovedCustomer = () => {
         setUsers(response.data);
         
         // Format users data
-        const formattedData = response.data.map((user) => ({
-          ...user,
-          id: user._id,
-          name: user.full_name,
-          phone_number: user.phone_number,
-          createdAt: user.createdAt?.split("T")[0],
-          address: user.address,
-          pincode: user.pincode,
-          customer_id: user.customer_id,
-          collection_area: user.collection_area?.route_name,
-          approval_status: user.approval_status === "true" ? "Approved" : "Pending",
+         const formattedData = response.data.map((group, index) => ({
+          _id: group._id,
+          id: index + 1,
+          unverfied_customer_code: group?.unverfied_customer_code,
+          name: group.full_name,
+          phone_number: group.phone_number,
+          createdAt: group.createdAt?.split("T")[0],
+          address: group.address,
+          pincode: group.pincode,
+          customer_id: group.customer_id,
+          collection_area: group.collection_area?.route_name,
+          approval_status:  group.approval_status === "true" ? "Approved" : "Pending",
         }));
         
         // Filter users based on search term

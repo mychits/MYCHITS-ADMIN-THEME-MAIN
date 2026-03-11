@@ -402,7 +402,7 @@ const LoanCompletionReport = () => {
               <DataTable
                 columns={loanReportColumns}
                 data={filteredLoanReport}
-                
+                 exportedFileName="Customer Completion Loan Report.csv"
                 exportedPdfName="Customer Completion Loan Report"
               />
             </div>

@@ -46,6 +46,7 @@ const Auction = () => {
     type: "info",
   });
   const [formData, setFormData] = useState({
+     auction_code: "",
     group_id: "",
     user_id: "",
     ticket: "",
@@ -268,6 +269,7 @@ const handleChangeUser = (value) => {
             ...response.data.map((group, index) => ({
               _id: group._id,
               id: index + 2,
+              auction_code: group?.auction_code,
               auction_date: group.auction_date,
               next_date: group.next_date,
               name: group.user_id?.full_name,
@@ -340,6 +342,7 @@ const handleChangeUser = (value) => {
 
   const columns = [
     { key: "id", header: "SL. NO" },
+       {key: "auction_code", header: "Auction Code"},
     { key: "auction_date", header: "Auction Date" },
     { key: "next_date", header: "Next Date" },
     { key: "name", header: "Customer Name" },

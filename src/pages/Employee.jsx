@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../components/layouts/Sidebar";
 import { IoMdMore } from "react-icons/io";
-import { Input, Select, Dropdown } from "antd";
+import { Input, Select, Dropdown ,Modal as madal } from "antd";
 import Modal from "../components/modals/Modal";
 import api from "../instance/TokenInstance";
 import DataTable from "../components/layouts/Datatable";
@@ -11,6 +11,7 @@ import filterOption from "../helpers/filterOption";
 import { fieldSize } from "../data/fieldSize";
 import CircularLoader from "../components/loaders/CircularLoader";
 import CustomAlertDialog from "../components/alerts/CustomAlertDialog";
+const { confirm } = madal;
 const Employee = () => {
   const [users, setUsers] = useState([]);
   const [TableEmployees, setTableEmployees] = useState([]);
@@ -21,6 +22,7 @@ const Employee = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUpdateUser, setCurrentUpdateUser] = useState(null);
   const [errors, setErrors] = useState({});
+   const [unVerifiedUser, setUnVerifiedUser] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [selectedManagerId, setSelectedManagerId] = useState("");
   const [selectedReportingManagerId, setSelectedReportingManagerId] =
@@ -59,7 +61,7 @@ const Employee = () => {
     emergency_contact_person: "",
     emergency_contact_number: [""],
     total_allocated_leaves: "2",
-
+      isVerified: true,
 
 
   });
@@ -83,7 +85,7 @@ const Employee = () => {
     emergency_contact_person: "",
     emergency_contact_number: [""],
     total_allocated_leaves: "2",
-
+        isVerified: "",
 
   });
   useEffect(() => {
@@ -93,7 +95,7 @@ const Employee = () => {
         const response = await api.get("/agent/get-additional-employee-info");
         const employeeData = response.data?.employee || [];
         setUsers(employeeData);
-        const formattedData = employeeData.map((group, index) => ({
+          const formattedData = employeeData.filter((emp) => emp.isVerified === true).map((group, index) => ({
           _id: group?._id,
           id: index + 1,
           name: group?.name || "N/A",
@@ -104,7 +106,7 @@ const Employee = () => {
           action: (
             <div className="flex justify-center gap-2">
               <Dropdown
-                trigger={['click']}
+                trigger={["click"]}
                 menu={{
                   items: [
                     {
@@ -120,6 +122,17 @@ const Employee = () => {
                     },
                     {
                       key: "2",
+                      label: (
+                        <div
+                          className="text-blue-600"
+                          onClick={() => handleUnverifyEmployee(group._id)}
+                        >
+                          Un-Verify
+                        </div>
+                      ),
+                    },
+                    {
+                      key: "3",
                       label: (
                         <div
                           className="text-red-600"
@@ -385,17 +398,17 @@ const Employee = () => {
           emergency_contact_person: "",
           emergency_contact_number: [""],
           total_allocated_leaves: "2",
-
+            isVerified: true,
           
         });
         setSelectedManagerId("");
         setSelectedReportingManagerId("");
         setReloadTrigger((prev) => prev + 1);
-        setAlertConfig({
-          visibility: true,
-          message: "Employee Added Successfully",
-          type: "success",
-        });
+        // setAlertConfig({
+        //   visibility: true,
+        //   message: "Employee Added Successfully",
+        //   type: "success",
+        // });
       }
     } catch (error) {
       console.error("Error adding Employee:", error);
@@ -456,6 +469,7 @@ const Employee = () => {
         `/agent/get-additional-employee-info-by-id/${userId}`
       );
       setCurrentUpdateUser(response.data?.employee);
+      setUnVerifiedUser(response.data?.employee);
       setUpdateFormData({
         name: response?.data?.employee?.name,
         email: response?.data?.employee?.email,
@@ -573,7 +587,40 @@ const Employee = () => {
     const reportingId = event.target.value;
     setSelectedReportingManagerId(reportingId);
   };
+  const handleUnverifyEmployee = async (id) => {
+    confirm({
+      title: "Are you sure you want to Un-Verify this Employee?",
+      content: "This action will mark the Employee as Un-Verified.",
+      okText: "Yes, Verify",
+      cancelText: "Cancel",
 
+      async onOk() {
+        try {
+          console.log(id ," thhis is unverfied use")
+          const response = await api.put(
+            `/agent/un-approve-employee/${id}`,
+            {
+              isVerified: false,
+            },
+          );
+         
+          setReloadTrigger((prev) => prev + 1);
+
+          setAlertConfig({
+            visibility: true,
+            message: "Employee Un-Verified Successfully",
+            type: "success",
+          });
+        } catch (error) {
+          setAlertConfig({
+            visibility: true,
+            message: error?.response?.data?.message || "Failed to verify agent",
+            type: "error",
+          });
+        }
+      },
+    });
+  };
 
 
 
