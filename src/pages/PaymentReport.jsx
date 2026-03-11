@@ -637,6 +637,7 @@ const PaymentReport = () => {
             <div className="mb-8">
               <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent p-2">
                 Reports - Receipt
+                Reports - Receipt
               </h1>
               <p className="text-gray-600 mt-2 ml-2">
                 Track and manage all receipt transactions
